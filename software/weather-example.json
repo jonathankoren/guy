@@ -1,0 +1,21 @@
+{
+  "date": "Thu, 27 Feb 2025 20:25:00 PST",
+  "generator": "weewx 4.10.2",
+  "ttl": "5.0 minutes",
+  "lat": 37.67,
+  "long": -121.33,
+  "Outside Temperature": "63.6&#176;F",
+  "Barometer": "29.953 inHg",
+  "Wind": "0 mph from    N/A",
+  "Rain": "0.00 in",
+  "Rain Rate": "0.00 in/h",
+  "Wind Chill": "63.6&#176;F",
+  "Heat Index": "62.6&#176;F",
+  "Dew Point": "50.8&#176;F",
+  "Humidity": "63%",
+  "UV Index": "0.0",
+  "Radiation": "0 W/m&#178;",
+  "Current AQI PM 2.5": 19,
+  "Current AQI PM 2.5 color": "#00e400",
+  "Current AQI PM 2.5 category":"Good"
+}
