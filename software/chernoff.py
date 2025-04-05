@@ -26,11 +26,12 @@ class Emotion:
     SAD_1 = -1
     SAD_2 = -2
     SAD = SAD_3 = -3
+    SAD_4 = -4
     ANGRY = 10
     SCARED = -10
     MISCHEVIOUS = 11
     CONFUSED = -11
-
+    
 def reduce(l, s):
     '''Repeatedly applys l to pairs in s and returns the result'''
     it = iter(s)
@@ -38,6 +39,9 @@ def reduce(l, s):
     for e in it:
         value = l(value, e)
     return value
+
+def make_tear_points(top):
+    return [top, (top[0]-5, top[1]+10), (top[0]-10, top[1]+20), (top[0], top[1]+25), (top[0]+10, top[1]+20), (top[0]+5, top[1]+10)]
 
 class Eye:
     def __init__(self):
@@ -47,6 +51,8 @@ class Eye:
         self.color = 0xffffff
         self.stroke = 1
         self.fill = None
+        self.left_tears = 0
+        self.right_tears = 0
 
     def describe(self):
         return f'EYE: center ({self.x}, {self.y}), r={self.radius} stroke: {self.stroke} 0x{self.color:x}'
@@ -54,6 +60,21 @@ class Eye:
     def draw(self, displayio_group):
         if CIRCUIT_PYTHON:
             displayio_group.append(Circle(x0=self.x, y0=self.y, r=self.radius, fill=self.fill, outline=self.color, stroke=self.stroke))
+            
+            for i in range(self.left_tears):
+                top_x = self.x - self.radius - 10
+                top_y = self.y + self.radius + 10 + (30 * i)
+                if i % 2 == 1:
+                    top_x -= 20
+                
+                displayio_group.append(FilledPolygon(points=make_tear_points((top_x, top_y)), fill=0x00ffff))
+                
+            for i in range(self.right_tears):
+                top_x = self.x + self.radius + 10
+                top_y = self.y + self.radius + 10 + (30 * i)
+                if i % 2 == 1:
+                    top_x += 20               
+                displayio_group.append(FilledPolygon(points=make_tear_points((top_x, top_y)), fill=0x00ffff))
         else:
             print(self.describe())
 
@@ -187,7 +208,7 @@ class Mouth:
 
         ####################################
         # SAD
-        elif self.emotion == Emotion.SAD_3:
+        elif self.emotion <= Emotion.SAD_3 or self.emotion <= Emotion.SAD_4:
             radius = 100
             y = self.y + (2 * radius)
             direction = 90
@@ -278,7 +299,7 @@ class Face:
 
     def is_complex_emotion(self):
         return self.emotion in [Emotion.SCARED, Emotion.MISCHEVIOUS, Emotion.CONFUSED,
-            Emotion.SAD_1, Emotion.SAD_2, Emotion.SAD_3, Emotion.SAD]
+            Emotion.SAD_1, Emotion.SAD_2, Emotion.SAD_3, Emotion.SAD, Emotion.SAD_4]
 
     def describe(self):
         s = f'FACE: d: {self.diameter} {self.emotion}' + "\n"
@@ -315,6 +336,12 @@ class Face:
             bound_pupil_to_eye(self.eyes[1], self.pupils[1])
             return
 
+        self.eyes[0].left_tears = self.eyes[0].right_tears = 0
+        self.eyes[1].left_tears = self.eyes[1].right_tears = 0
+        if self.emotion == Emotion.SAD_4:
+            self.eyes[0].left_tears = 3
+            self.eyes[1].right_tears = 3
+
         if self.emotion == Emotion.MISCHEVIOUS:
             self.mouth.emotion = Emotion.HAPPY
             self.eyebrows[0].angle = 30
@@ -323,7 +350,6 @@ class Face:
             self.pupils[1].x = self.eyes[1].x - self.eyes[1].radius
             self.pupils[0].y = self.eyes[0].y + self.eyes[0].radius
             self.pupils[1].y = self.eyes[1].y + self.eyes[1].radius
-
 
         elif self.emotion == Emotion.CONFUSED:
             self.mouth.emotion = Emotion.SAD_1
@@ -344,6 +370,11 @@ class Face:
         bound_pupil_to_eye(self.eyes[0], self.pupils[0])
         bound_pupil_to_eye(self.eyes[1], self.pupils[1])
 
+    def reset(self):
+        self.emotion = None
+        self.reset_color()
+        self.reset_eyebrows()
+        self.reset_pupils()
 
     def draw(self, displayio_group):
         self.update()
@@ -351,5 +382,7 @@ class Face:
             self.eyes[i].draw(displayio_group)
             self.pupils[i].draw(displayio_group)
             self.eyebrows[i].draw(displayio_group)
+            
         self.nose.draw(displayio_group)
         self.mouth.draw(displayio_group)
+

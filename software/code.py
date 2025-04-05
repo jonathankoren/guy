@@ -16,6 +16,7 @@ import time
 
 from weather import Weather
 from opensky import OpenSky
+from faceanimation import FaceAnimation
 
 ##############################################################################
 
@@ -35,7 +36,6 @@ def touch_area(x, size):
 # Connect to network
 wifi.radio.connect(os.getenv("CIRCUITPY_WIFI_SSID"), os.getenv("CIRCUITPY_WIFI_PASSWORD"))
 print(f"Connected to {os.getenv('CIRCUITPY_WIFI_SSID')}")
-context = ssl.create_default_context()
 
 # Create the face
 graphics = Graphics(Displays.ROUND21, default_bg=0x103260, auto_refresh=True, rotation=180)
@@ -46,11 +46,13 @@ TOUCH_TTL = 1
 ERROR_TIMEOUT = 60
 while True:
     try:
+        context = ssl.create_default_context()
         pool = socketpool.SocketPool(wifi.radio)
         requests = adafruit_requests.Session(pool, context)
 
         # Edit this array to add your own modules
-        modules = [ Weather(os.getenv('WEATHER_URL'), requests, graphics.display.width),
+        modules = [ FaceAnimation(graphics.display.width),
+            Weather(os.getenv('WEATHER_URL'), requests, graphics.display.width),
             OpenSky(os.getenv('OPENSKY_LAT_MIN'), os.getenv('OPENSKY_LAT_MAX'),
                 os.getenv('OPENSKY_LONG_MIN'), os.getenv('OPENSKY_LONG_MAX'),
                 requests, graphics.display.width) ]
@@ -66,7 +68,7 @@ while True:
             if graphics.touch.touched and time.time() > next_touch:
                 side = touch_area(graphics.touch.touches[0]['x'], graphics.display.width)
                 print('TOUCH!', side)
-                if side != 0:
+                if side != 0 and len(graphics.touch.touches) > 0:
                     if side < 0:
                         current_module_idx -= 1
                         if current_module_idx < 0:

@@ -2,7 +2,10 @@ import displayio
 
 from chernoff import *
 
-EMOTIONS = [ Emotion.ANGRY, Emotion.HAPPY_3, Emotion.HAPPY_2, Emotion.HAPPY_1, Emotion.NEUTRAL, Emotion.SAD_1, Emotion.SAD_2, Emotion.SAD_3, Emotion.SCARED,
+EMOTIONS = [ Emotion.ANGRY, 
+             Emotion.HAPPY_3, Emotion.HAPPY_2, Emotion.HAPPY_1, 
+             Emotion.NEUTRAL, 
+             Emotion.SAD_1, Emotion.SAD_2, Emotion.SAD_3, Emotion.SAD_4, Emotion.SCARED,
              Emotion.MISCHEVIOUS, Emotion.CONFUSED]
 
 COLORS = [ 0xffffff, 0xffff00, 0xff00ff, 0x00ffff, 0xff0000, 0x00ff00, 0x0000ff ]
@@ -41,3 +44,4 @@ class FaceAnimation:
         print('FACEANIMATION tap')
         self.color_index = (self.color_index + 1) % len(COLORS)
         return self.draw(0)
+

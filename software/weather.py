@@ -14,22 +14,20 @@ from chernoff import Face, Emotion, bound_pupil_to_eye
 def clamp(low, val, high):
     return min(max(val, low), high)
 
-class Module:
-    '''A basic module'''
-    def __init__(self):
-        pass
+def make_simple_text(text):
+    '''Creates a displayio.Group that shows a simple line of text.'''
+    group = displayio.Group()
+    BASE_FONT_SIZE = 24
+    font = bitmap_font.load_font(f"Junction-Regular-{BASE_FONT_SIZE}.pcf", displayio.Bitmap)
+    font_scale = 1
+    color = 0xFF0000
+    text_area = label.Label(font, text=text, color=color, scale=font_scale)
+    text_area.x = 100
+    text_area.y = 100
+    group.append(text_area)
+    return group
 
-    def draw(self):
-        '''Returns a displayio.Group and TTL in seconds for next drawing update.'''
-        raise NotImplementedError
-
-    def tap(self, x, y):
-        '''Takes an x,y coordinate of a tap on the touch screen and returns a
-        displayio.Group and TTL in seconds for next drawing update.'''
-        raise NotImplementedError
-
-
-class Weather(Module):
+class Weather:
     def __init__(self, url, request_session, face_size):
         self.url = url
         self.requests = request_session
@@ -43,6 +41,7 @@ class Weather(Module):
 
     def draw(self, timestamp):
         print('WEATHER: draw()')
+        self.face.reset()
         try:
             if self.last_update + self.ttl < timestamp:
                 with self.requests.get(self.url) as response:
@@ -57,7 +56,7 @@ class Weather(Module):
 
         except (ValueError, RuntimeError, ConnectionError, OSError) as e:
             print(f'EXCEPTION: {e}. Retrying.')
-            text = f'Error fetching from {URL}'
+            text = f'Error fetching from {self.url}'
 
             # make face
             self.face.emotion = Emotion.CONFUSED
@@ -145,10 +144,11 @@ class Weather(Module):
     def make_face(self):
         self.face.reset_pupils()
         self.face.reset_eyebrows()
-        self.make_face_aqi()
-        self.make_face_temp()
-        self.make_face_wind()
-        self.make_face_humid()
+        if self.datajson is not None:
+            self.make_face_aqi()
+            self.make_face_temp()
+            self.make_face_wind()
+            self.make_face_humid()
 
     def make_face_group(self):
         self.face_group = displayio.Group()
