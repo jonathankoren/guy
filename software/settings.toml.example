@@ -1,7 +1,5 @@
 CIRCUITPY_WIFI_SSID = "freeWifi"
 CIRCUITPY_WIFI_PASSWORD = "wifi_password"
-ADAFRUIT_AIO_USERNAME = "username"
-ADAFRUIT_AIO_KEY      = "secret_key"
 WEATHER_URL = "http://example.com/weewx/current.json"
 OPENSKY_LAT_MIN = 36.785
 OPENSKY_LAT_MAX = 38.761
